@@ -4,7 +4,9 @@
 ![Framework](https://img.shields.io/badge/framework-PyTorch-ee4c2c)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-This repository contains the project code for **Nexus: Structured Synergy for Efficient Text-to-Image Generation using Rectified Flow Model**. The paper has been **accepted at ACCV 2026**. Pretrained model weights(INT-4) are available at [Google Driver](XX).
+This repository contains the project code for **Nexus: Structured Synergy for Efficient Text-to-Image Generation using Rectified Flow Model**. The paper has been **accepted at ACCV 2026**. 
+
+Pretrained model weights(INT-4) are available at [Google Driver](https://drive.google.com/file/d/1bsDozYJJjPxfBMJBAYrPE57b_yJHtdLh/view?usp=sharing).
 
 Nexus is an efficient text-to-image generation framework built around three cooperating ideas:
 
