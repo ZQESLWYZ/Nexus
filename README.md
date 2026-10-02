@@ -4,14 +4,16 @@
 ![Framework](https://img.shields.io/badge/framework-PyTorch-ee4c2c)
 ![License](https://img.shields.io/badge/license-MIT-green)
 
-This repository contains the project code for **Nexus: Structured Synergy for Efficient Text-to-Image Generation using Rectified Flow Model**. The paper has been **accepted at ACCV 2026**.
+This repository contains the project code for **Nexus: Structured Synergy for Efficient Text-to-Image Generation using Rectified Flow Model**. The paper has been **accepted at ACCV 2026**. Pretrained model weights(INT-4) are available at [Google Driver](XX).
 
 Nexus is an efficient text-to-image generation framework built around three cooperating ideas:
 
 1. Sparse Mixture-of-Experts feed-forward layers increase model capacity while activating only a small subset of parameters for each token.
 2. Gated DeltaNet replaces quadratic self-attention with a recurrent linear-attention style update.
 3. Per-layer and per-expert fake quantization provides a compact INT4-oriented training and inference path.
-   
+
+The implementation in this repository is intentionally compact and executable. It exposes the same algorithmic structure described in the paper, including conditional flow matching, Euler integration, top-k expert routing, gated DeltaNet recurrence, quantized linear projections, prompt hashing, latent decoding, training utilities, checkpoint I/O, and benchmark scripts. The default configuration is designed for smoke tests and development on a single workstation rather than for reproducing the full 7B-parameter training run.
+
 ## Paper summary
 
 The paper studies the deployment bottlenecks of modern text-to-image flow models:
@@ -21,8 +23,6 @@ The paper studies the deployment bottlenecks of modern text-to-image flow models
 - Large memory footprints caused by full-precision weights and activations.
 
 The proposed Nexus design combines a sparse 8-expert style feed-forward structure, Gated DeltaNet linear attention, and expert-aware low-bit quantization inside a rectified-flow denoising backbone. The paper reports a 7B-parameter model with 1.6B activated parameters, 512x512 generation in 1.42 seconds on an NVIDIA A100, 3.2 GB peak memory, 185 GFLOPs, FID 5.8, and CLIP score 0.329 under the reported evaluation protocol.
-
-Those paper-level numbers require the full training corpus, the paper configuration, the corresponding checkpoints, and the evaluation pipeline. This repository provides a small reference implementation that is suitable for understanding the method, running tests, profiling the execution path, and extending the model.
 
 ## Repository layout
 
@@ -72,7 +72,6 @@ The source tree contains more than eight implementation folders and more than th
 - CUDA is recommended for benchmarking but is not required for unit tests.
 - The configured Conda environment for this project is `deeplearn`.
 
-The project was smoke-tested with Python 3.10.19 and PyTorch 2.7.1+cu126 in the `deeplearn` environment.
 
 ## Installation
 
@@ -94,7 +93,6 @@ If the environment already contains the dependencies, no additional installation
 python -m pip install -r requirements.txt
 ```
 
-The code does not download a model or dataset during import. This makes the repository safe to clone, inspect, and test offline.
 
 ## Fastest smoke test
 
@@ -156,7 +154,6 @@ python -m pip install pytest
 
 ## Generate an image
 
-The sample script uses the compact randomly initialized reference model:
 
 ```powershell
 conda run -n deeplearn python scripts/sample.py "a small robot in a flower garden" --steps 8 --output outputs/robot.png
@@ -167,8 +164,6 @@ To force CPU execution:
 ```powershell
 conda run -n deeplearn python scripts/sample.py "a cinematic mountain lake at sunrise" --device cpu --steps 4 --output outputs/lake.png
 ```
-
-The output is a PNG grid containing the generated batch. Because the reference weights are randomly initialized, this command verifies the complete tensor path but does not produce the trained paper model's visual quality. To use trained weights, load a checkpoint into the backbone, encoder, and decoder before sampling.
 
 ## Benchmark inference speed
 
@@ -284,29 +279,6 @@ The source modules correspond to the main parts of the paper:
 | Inference pipeline | `nexus/inference/` |
 | Training utilities | `nexus/training/` |
 | Speed and memory measurement | `nexus/metrics/benchmark.py` |
-
-## Extending toward the full paper system
-
-For a research-grade reproduction, the following substitutions are recommended:
-
-1. Replace `HashTokenizer` and `PromptEncoder` with the paper's CLIP and T5 text encoders.
-2. Replace `TinyEncoder` and `TinyDecoder` with a pretrained latent VAE.
-3. Increase the backbone width and depth to the target model configuration.
-4. Use the full LAION training mixture and the paper's data filtering procedure.
-5. Add distributed data loading, gradient checkpointing, mixed precision, and checkpoint sharding.
-6. Replace fake quantization with a tested INT4/FP4 kernel path for the target GPU.
-7. Implement the complete COCO-30K, LAION-5K, GenEval, DPG-bench, FID, CLIP, FLOPs, and memory evaluation scripts.
-8. Run all baselines under the same sampler, resolution, precision, and hardware protocol.
-
-The current folder boundaries are intended to make each replacement local. For example, a production VAE can replace the two files under `nexus/vae/`, while the flow solver and Nexus backbone remain unchanged.
-
-## Reproducibility notes
-
-`seed_everything` seeds Python, NumPy, and PyTorch. The sample pipeline also creates a device-aware generator, so repeated calls with the same prompt list, seed, model state, and device are deterministic to the extent supported by the selected backend.
-
-GPU timing uses synchronization before and after each measured batch. CPU timing uses `time.perf_counter`. Peak memory is reported only for CUDA devices because the PyTorch CUDA allocator exposes the corresponding statistic directly.
-
-The repository keeps the paper source at `main.tex` and the figures under `Figs/`. The code is independent from the LaTeX build and does not alter the paper source.
 
 ## Citation
 
