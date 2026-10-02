@@ -14,7 +14,7 @@ Nexus is an efficient text-to-image generation framework built around three coop
 2. Gated DeltaNet replaces quadratic self-attention with a recurrent linear-attention style update.
 3. Per-layer and per-expert fake quantization provides a compact INT4-oriented training and inference path.
 
-The implementation in this repository is intentionally compact and executable. It exposes the same algorithmic structure described in the paper, including conditional flow matching, Euler integration, top-k expert routing, gated DeltaNet recurrence, quantized linear projections, prompt hashing, latent decoding, training utilities, checkpoint I/O, and benchmark scripts. The default configuration is designed for smoke tests and development on a single workstation rather than for reproducing the full 7B-parameter training run.
+The implementation in this repository is intentionally compact and executable. It exposes the same algorithmic structure described in the paper, including conditional flow matching, Euler integration, top-k expert routing, gated DeltaNet recurrence, quantized linear projections, prompt hashing, latent decoding, training utilities, checkpoint I/O, and benchmark scripts.
 
 ## Paper summary
 
